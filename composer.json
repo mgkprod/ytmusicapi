@@ -45,7 +45,7 @@
                 "MGKProd\\YTMusic\\YTMusicServiceProvider"
             ],
             "aliases": {
-                "YTMusic": "MGKProd\\YTMusic\\YTMusicFacade"
+                "YTMusic": "MGKProd\\YTMusic\\Facades\\YTMusic"
             }
         }
     }

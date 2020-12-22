@@ -47,7 +47,7 @@ php artisan vendor:publish --provider="MGKProd\YTMusic\YTMusicServiceProvider" -
 ## Usage
 
 ``` php
-use MGKProd\YTMusic\YTMusicFacade as YTMusic;
+use MGKProd\YTMusic\Facades\YTMusic;
 
 $results = YTMusic::search('daft punk');
 $artists = YTMusic::search('magenta', 'artists');

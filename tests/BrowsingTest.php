@@ -3,7 +3,7 @@
 namespace MGKProd\YTMusic\Tests;
 
 use Exception;
-use MGKProd\YTMusic\YTMusicFacade as YTMusic;
+use MGKProd\YTMusic\Facades\YTMusic;
 
 class BrowsingTest extends TestCase
 {
