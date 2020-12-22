@@ -2,8 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mgkprod/ytmusicapi.svg?style=flat-square)](https://packagist.org/packages/mgkprod/ytmusicapi)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/mgkprod/ytmusicapi/run-tests?label=tests)
-[![Build Status](https://img.shields.io/travis/mgkprod/ytmusicapi/master.svg?style=flat-square)](https://travis-ci.org/mgkprod/ytmusicapi)
+![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/mgkprod/ytmusicapi/run-tests?label=tests&style=flat-square)
 [![Total Downloads](https://img.shields.io/packagist/dt/mgkprod/ytmusicapi.svg?style=flat-square)](https://packagist.org/packages/mgkprod/ytmusicapi)
 
 A work-in-progress API that emulates web requests from the YouTube Music web client.
@@ -11,10 +10,10 @@ A work-in-progress API that emulates web requests from the YouTube Music web cli
 This is a port of [sigma67/ytmusicapi](https://github.com/sigma67/ytmusicapi), an unofficial API implementation written in Python.
 
 This package being used in production in one of my applications, I will do my best to keep it up to date with the latest evolutions of the YouTube Music client.
+**I don't plan on porting more features than I need using the YouTube Music API into my app. Contributions are open!**
 
 ## Features
 
-**I don't plan on porting more features than I need using the YouTube Music API into my app. Contributions are open!**
 
 **Browsing**:
 
@@ -24,22 +23,6 @@ This package being used in production in one of my applications, I will do my be
 * [ ] get albums
 * [ ] get song metadata
 * [ ] get watch playlists (playlist that appears when you press play in YouTube Music)
-
-**Library management**:
-
-* [ ] get library contents: playlists, songs, artists, albums and subscriptions
-* [ ] add/remove library content: rate songs, albums and playlists, subscribe/unsubscribe artists
-
-**Playlists**:
-
-* [ ] create and delete playlists
-* [ ] modify playlists: edit metadata, add/move/remove tracks
-* [ ] get playlist contents
-
-**Uploads**:
-
-* [ ] Upload songs and remove them again
-* [ ] List uploaded songs, artists and albums
 
 ## Requirements
 
