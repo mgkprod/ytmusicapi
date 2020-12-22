@@ -2,7 +2,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mgkprod/ytmusicapi.svg?style=flat-square)](https://packagist.org/packages/mgkprod/ytmusicapi)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/mgkprod/ytmusicapi/run-tests?label=tests&style=flat-square)
+![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/mgkprod/ytmusicapi/Tests?label=tests&style=flat-square)
 [![Total Downloads](https://img.shields.io/packagist/dt/mgkprod/ytmusicapi.svg?style=flat-square)](https://packagist.org/packages/mgkprod/ytmusicapi)
 
 A work-in-progress API that emulates web requests from the YouTube Music web client.
