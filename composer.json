@@ -1,0 +1,52 @@
+{
+    "name": "mgkprod/ytmusicapi",
+    "description": "Unofficial API for YouTube Music",
+    "keywords": ["mgkprod","ytmusicapi"],
+    "homepage": "https://github.com/mgkprod/ytmusicapi",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Simon Rubuano",
+            "email": "sr@mgk.dev",
+            "homepage": "https://mgk.dev",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0",
+        "guzzlehttp/guzzle": "^6.5.5|^7.0.1"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^8.5.8|^9.3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "MGKProd\\YTMusic\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MGKProd\\YTMusic\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes",
+        "test": "vendor/bin/phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MGKProd\\YTMusic\\YTMusicServiceProvider"
+            ],
+            "aliases": {
+                "YTMusic": "MGKProd\\YTMusic\\YTMusicFacade"
+            }
+        }
+    }
+}
