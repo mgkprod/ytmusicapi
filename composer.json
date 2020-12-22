@@ -1,7 +1,7 @@
 {
     "name": "mgkprod/ytmusicapi",
     "description": "Unofficial API for YouTube Music",
-    "keywords": ["mgkprod","ytmusicapi"],
+    "keywords": ["php", "laravel", "youtube", "youtube-api", "youtube-music", "youtube-music-api", "mgkprod", "ytmusicapi"],
     "homepage": "https://github.com/mgkprod/ytmusicapi",
     "license": "MIT",
     "type": "library",
