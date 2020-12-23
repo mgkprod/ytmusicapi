@@ -18,11 +18,11 @@ This package being used in production in one of my applications, I will do my be
 **Browsing**:
 
 * [x] search (including all filters)
-* [ ] get artist information and releases (songs, videos, albums, singles)
-* [ ] get user information (videos, playlists)
-* [ ] get albums
-* [ ] get song metadata
-* [ ] get watch playlists (playlist that appears when you press play in YouTube Music)
+* [x] get artist information and releases (songs, videos, albums, singles)
+* [x] get user information (videos, playlists)
+* [x] get albums
+* [x] get song metadata
+* [x] get watch playlists (playlist that appears when you press play in YouTube Music)
 
 ## Requirements
 
@@ -49,9 +49,43 @@ php artisan vendor:publish --provider="MGKProd\YTMusic\YTMusicServiceProvider" -
 ``` php
 use MGKProd\YTMusic\Facades\YTMusic;
 
-$results = YTMusic::search('daft punk');
-$artists = YTMusic::search('magenta', 'artists');
-$songs = YTMusic::search('blizzard oddscure', 'songs');
+// search in all
+$results = YTMusic::browse()->search('daft punk');
+
+// filtered search (albums, artists, playlists, songs or videos)
+$artists = YTMusic::browse()->search('magenta', 'artists');
+$songs = YTMusic::browse()->search('blizzard oddscure', 'songs');
+
+// artist
+$artist = YTMusic::browse()->artist('MPLAUCmMUZbaYdNH0bEd1PAlAqsA');
+
+// ... and his albums
+$albums = YTMusic::browse()->artistAlbums(
+    $artist['albums']['browseId'],
+    $artist['albums']['params']
+);
+
+// ... or his singles
+$singles = YTMusic::browse()->artistAlbums(
+    $artist['singles']['browseId'],
+    $artist['singles']['params']
+);
+
+// album
+$album = YTMusic::browse()->album('MPREb_BQZvl3BFGay');
+
+// song
+$song = YTMusic::browse()->song('ZrOKjDZOtkA');
+
+// user
+$user = YTMusic::browse()->user('UCPVhZsC2od1xjGhgEc2NEPQ');
+
+// ... and his playlists
+$playlists = YTMusic::browse()->userPlaylists(
+    'UCPVhZsC2od1xjGhgEc2NEPQ',
+    $user['playlists']['params']
+);
+
 ```
 
 The [tests](./tests/BrowsingTest.php) are also a great source of usage examples.

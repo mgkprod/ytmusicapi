@@ -12,7 +12,7 @@ class YTMusic
     const PARAMS = '?alt=json&key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30';
     const BASE_URL = 'https://music.youtube.com/youtubei/v1/';
 
-    protected $headers;
+    public $headers;
     protected $context;
 
     public function __construct()
@@ -21,9 +21,9 @@ class YTMusic
         $this->context = json_decode(File::get(__DIR__ . '/context.json'), true);
     }
 
-    public function search($query, $filter = null, $limit = 20, $ignore_spelling = false)
+    public function browse()
     {
-        return (new Browsing($this))->search($query, $filter, $limit, $ignore_spelling);
+        return new Browsing($this);
     }
 
     public function _send_request($endpoint, $body, $additional_params = null)

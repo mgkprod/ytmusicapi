@@ -33,6 +33,65 @@ class Utils
         return $column['text']['runs'][$run_index]['text'] ?? null;
     }
 
+    public static function getFixedColumnItem($item, $index)
+    {
+        if (
+            ! array_key_exists('text', $item['fixedColumns'][$index]['musicResponsiveListItemFixedColumnRenderer'])
+            && ! array_key_exists('runs', $item['fixedColumns'][$index]['musicResponsiveListItemFixedColumnRenderer']['text'])
+        ) {
+            return null;
+        }
+
+        return $item['fixedColumns'][$index]['musicResponsiveListItemFixedColumnRenderer'];
+    }
+
+    public static function getBrowseId($item, $index)
+    {
+        if (
+            ! array_key_exists('navigationEndpoint', $item['text']['runs'][$index])
+        ) {
+            return null;
+        }
+
+        return data_get($item['text']['runs'][$index], Paths::NAVIGATION_BROWSE_ID);
+    }
+
+    public static function parseSongAlbum($data, $index)
+    {
+        $column = self::getFlexColumnItem($data, $index);
+
+        if (! $column) {
+            return null;
+        }
+
+        return [
+            'name' => self::getItemText($data, $index),
+            'id' => self::getBrowseId($column, 0),
+        ];
+    }
+
+    public static function parseSongMenuTokens($item)
+    {
+        $library_add_token = $library_remove_token = null;
+        $toggle_menu = $item['toggleMenuServiceItemRenderer'];
+        $service_type = $toggle_menu['defaultIcon']['iconType'];
+
+        if ($service_type == 'LIBRARY_ADD') {
+            $library_add_token = data_get($toggle_menu, 'defaultServiceEndpoint' . '.' . Paths::FEEDBACK_TOKEN);
+            $library_remove_token = data_get($toggle_menu, 'toggledServiceEndpoint' . '.' . Paths::FEEDBACK_TOKEN);
+        } elseif ($service_type == 'LIBRARY_REMOVE') {
+            // swap if already in library
+            $old_library_add_token = $library_add_token;
+            $library_add_token = $library_remove_token;
+            $library_remove_token = $old_library_add_token;
+        }
+
+        return [
+            'add' => $library_add_token,
+            'remove' => $library_remove_token,
+        ];
+    }
+
     public static function parseSongArtists($data, $index)
     {
         $flex_item = self::getFlexColumnItem($data, $index);
@@ -151,5 +210,52 @@ class Utils
 
         // # response is invalid, if it has less items then minimal expected count
         // return len(response['parsed']) >= expected_items_count
+    }
+
+    public static function prepareBrowseEndpoint($type, $browseId)
+    {
+        return [
+            'browseEndpointContextSupportedConfigs' => [
+                'browseEndpointContextMusicConfig' => [
+                    'pageType' => 'MUSIC_PAGE_TYPE_' . $type,
+                ],
+            ],
+            'browseId' => $browseId,
+        ];
+    }
+
+    public static function findObjectByKey($object_list, $key, $nested = null, $is_key = false)
+    {
+        foreach ($object_list as $item) {
+            if ($nested) {
+                $item = $item[$nested];
+            }
+
+            if (array_key_exists($key, $item)) {
+                if ($is_key) {
+                    return $item[$key];
+                } else {
+                    return $item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static function findObjectsByKey($object_list, $key, $nested = null)
+    {
+        $objects = [];
+
+        foreach ($object_list as $item) {
+            if ($nested) {
+                $item = $item[$nested];
+            }
+            if (array_key_exists($key, $item)) {
+                $objects[] = $item;
+            }
+        }
+
+        return $objects;
     }
 }

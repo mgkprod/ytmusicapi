@@ -72,57 +72,10 @@ class Browsing
                     ];
 
                     $search_result['duration'] = $runs[count($runs) - 1]['text'] ?? null;
-
-                    // if (array_key_exists('menu', $data)) {
-                        // $toggle_menu = find_object_by_key(data_get($data, Path::MENU_ITEMS), 'toggleMenuServiceItemRenderer')
-                        // if ($toggle_menu) {
-                        //     $search_result['feedbackTokens'] = parse_song_menu_tokens(toggle_menu)
-                        // }
-                    // }
                 }
             } elseif (in_array($result_type, ['video'])) {
                 $search_result['views'] = explode(' ', Utils::getItemText($data, 1, -3))[0];
                 $search_result['duration'] = Utils::getItemText($data, 1, count($runs) - 1);
-            } elseif (in_array($result_type, ['upload'])) {
-                $search_result['title'] = Utils::getItemText($data, 0);
-
-                $browse_id = data_get($data, Paths::NAVIGATION_BROWSE_ID);
-                if (! $browse_id) {
-                    // song result
-                    // flex_items = [
-                    //     data_get($Utils::getFlexColumnItem(data, i), ['text', 'runs'], True)
-                    //     for i in range(2)
-                    // ]
-                    // if flex_items[0]:
-                    //     search_result['videoId'] = data_get($flex_items[0][0], NAVIGATION_VIDEO_ID)
-                    //     search_result['playlistId'] = data_get($flex_items[0][0], NAVIGATION_PLAYLIST_ID)
-                    // if flex_items[1]:
-                    //     search_result['artist'] = {
-                    //         'name': flex_items[1][0]['text'],
-                    //         'id': data_get($flex_items[1][0], NAVIGATION_BROWSE_ID)
-                    //     }
-                    //     search_result['album'] = {
-                    //         'name': flex_items[1][2]['text'],
-                    //         'id': data_get($flex_items[1][2], NAVIGATION_BROWSE_ID)
-                    //     }
-                    //     search_result['duration'] = flex_items[1][4]['text']
-                    // search_result['resultType'] = 'song'
-                } else {
-                    // artist or album result
-                    // $search_result['browseId'] = $browse_id;
-                    // if 'artist' in search_result['browseId']:
-                    //     search_result['resultType'] = 'artist'
-                    // else:
-                    //     flex_item2 = Utils::getFlexColumnItem(data, 1)
-                    //     runs = [
-                    //         run['text'] for i, run in enumerate(flex_item2['text']['runs'])
-                    //         if i % 2 == 0
-                    //     ]
-                    //     search_result['artist'] = runs[1]
-                    //     if len(runs) > 2:  # date may be missing
-                    //         search_result['releaseDate'] = runs[2]
-                    //     search_result['resultType'] = 'album'
-                }
             }
 
             $search_result['thumbnails'] = data_get($data, Paths::THUMBNAILS);
@@ -133,42 +86,84 @@ class Browsing
         return $search_results;
     }
 
-    protected function parseArtistContents($results)
+    public function parseWatchPlaylist($results)
     {
-        $categories = ['albums', 'singles', 'videos', 'playlists'];
-        $categories_local = [trans('ytmusicapi::types.albums'), trans('ytmusicapi::types.singles'), trans('ytmusicapi::types.videos'), trans('ytmusicapi::types.playlists')];
-        $categories_parser = ['parseAlbum', 'parseSingle', 'parseVideo', 'parsePlaylist'];
+        $tracks = [];
+
+        foreach ($results as $result) {
+            if (! array_key_exists('playlistPanelVideoRenderer', $result)) {
+                continue;
+            }
+
+            $data = $result['playlistPanelVideoRenderer'];
+
+            if (array_key_exists('unplayableText', $data)) {
+                continue;
+            }
+
+            $track = [
+                'title' => data_get($data, Paths::TITLE_TEXT),
+                'byline' => data_get($data, 'shortBylineText.runs.0.text'),
+                'length' => data_get($data, 'lengthText.runs.0.text'),
+                'videoId' => $data['videoId'],
+                'playlistId' => data_get($data, Paths::NAVIGATION_PLAYLIST_ID),
+                'thumbnail' => data_get($data, Paths::THUMBNAIL),
+            ];
+
+            $tracks[] = $track;
+        }
+
+        return $tracks;
+    }
+
+    public function parseArtistContents($results)
+    {
+        $categories = [
+            trans('ytmusicapi::types.albums') => 'albums',
+            trans('ytmusicapi::types.singles') => 'singles',
+            trans('ytmusicapi::types.videos') => 'videos',
+            trans('ytmusicapi::types.playlists') => 'playlists',
+        ];
+
+        $categories_parser = [
+            'albums' => 'parseAlbum',
+            'singles' => 'parseSingle',
+            'videos' => 'parseVideo',
+            'playlists' => 'parsePlaylist',
+        ];
 
         $artist = [];
 
-        foreach ($categories as $category) {
-            $data = [
-                // r['musicCarouselShelfRenderer'] for r in results
-                // if 'musicCarouselShelfRenderer' in r
-                // and data_get($r['musicCarouselShelfRenderer'],
-                //         CAROUSEL_TITLE)['text'].lower() == categories_local[i]
-            ];
+        foreach ($categories as $trans => $category) {
+            $data = [];
+
+            foreach ($results as $result) {
+                if (
+                    array_key_exists('musicCarouselShelfRenderer', $result)
+                    && mb_strtolower(data_get($result['musicCarouselShelfRenderer'], Paths::CAROUSEL_TITLE)['text']) == $trans
+                ) {
+                    $data[] = $result['musicCarouselShelfRenderer'];
+                }
+            }
 
             if (count($data)) {
-                // $artist[$category] = ['browseId' => 'None', 'results': []];
-                // if 'navigationEndpoint' in data_get($data[0], CAROUSEL_TITLE) {
-                //     artist[category]['browseId'] = data_get($data[0],
-                //                                     CAROUSEL_TITLE + NAVIGATION_BROWSE_ID)
-                //     if category in ['albums', 'singles', 'playlists']:
-                //         artist[category]['params'] = data_get($
-                //             data[0],
-                //             CAROUSEL_TITLE)['navigationEndpoint']['browseEndpoint']['params']
+                $artist[$category] = ['browseId' => null, 'results' => []];
 
-                // artist[category]['results'] = parse_content_list(data[0]['contents'],
-                //                                                 categories_parser[i])
-                //                                             }
+                if (array_key_exists('navigationEndpoint', data_get($data[0], Paths::CAROUSEL_TITLE))) {
+                    $artist[$category]['browseId'] = data_get($data[0], Paths::CAROUSEL_TITLE . '.' . Paths::NAVIGATION_BROWSE_ID);
+                    if (in_array($category, ['albums', 'singles', 'playlists'])) {
+                        $artist[$category]['params'] = data_get($data[0], Paths::CAROUSEL_TITLE)['navigationEndpoint']['browseEndpoint']['params'];
+                    }
+                }
+
+                $artist[$category]['results'] = $this->parseContentList($data[0]['contents'], $categories_parser[$category]);
             }
         }
 
         return $artist;
     }
 
-    protected function parseContentList($results, $parse_func)
+    public function parseContentList($results, $parse_func)
     {
         $contents = [];
 
@@ -179,27 +174,27 @@ class Browsing
         return $contents;
     }
 
-    protected function parseAlbum($result)
+    public function parseAlbum($result)
     {
         return [
             'title' => data_get($result, Paths::TITLE_TEXT),
             'year' => data_get($result, Paths::SUBTITLE2),
-            'browseId' => data_get($result, Paths::TITLE . Parse::NAVIGATION_BROWSE_ID),
+            'browseId' => data_get($result, Paths::TITLE . '.' . Paths::NAVIGATION_BROWSE_ID),
             'thumbnails' => data_get($result, Paths::THUMBNAIL_RENDERER),
         ];
     }
 
-    protected function parseSingle($result)
+    public function parseSingle($result)
     {
         return [
             'title' => data_get($result, Paths::TITLE_TEXT),
             'year' => data_get($result, Paths::SUBTITLE, true),
-            'browseId' => data_get($result, Paths::TITLE . Parse::NAVIGATION_BROWSE_ID),
+            'browseId' => data_get($result, Paths::TITLE . '.' . Paths::NAVIGATION_BROWSE_ID),
             'thumbnails' => data_get($result, Paths::THUMBNAIL_RENDERER),
         ];
     }
 
-    protected function parseVideo($result)
+    public function parseVideo($result)
     {
         $video = [
             'title' => data_get($result, Paths::TITLE_TEXT),
@@ -215,11 +210,11 @@ class Browsing
         return $video;
     }
 
-    protected function parsePlaylist($data)
+    public function parsePlaylist($data)
     {
         $playlist = [
             'title' => data_get($data, Paths::TITLE_TEXT),
-            'playlistId' => data_get($data, Paths::TITLE + Paths::NAVIGATION_BROWSE_ID)[2],
+            'playlistId' => data_get($data, Paths::TITLE . '.' . Paths::NAVIGATION_BROWSE_ID)[2],
             'thumbnails' => data_get($data, Paths::THUMBNAIL_RENDERER),
         ];
 
@@ -228,5 +223,108 @@ class Browsing
         }
 
         return $playlist;
+    }
+
+    public function parsePlaylistItems($results, $menu_entries = null)
+    {
+        $songs = [];
+        $count = 1;
+
+        foreach ($results as $result) {
+            $count++;
+            if (! array_key_exists('musicResponsiveListItemRenderer', $result)) {
+                continue;
+            }
+
+            $data = $result['musicResponsiveListItemRenderer'];
+
+            try {
+                $videoId = $setVideoId = null;
+                $like = null;
+                $feedback_tokens = null;
+
+                // if the item has a menu, find its setVideoId
+                if (array_key_exists('menu', $data)) {
+                    foreach (data_get($data, Paths::MENU_ITEMS, []) as $item) {
+                        if (array_key_exists('menuServiceItemRenderer', $item)) {
+                            $menu_service = data_get($item, Paths::MENU_SERVICE);
+                            if (array_key_exists('playlistEditEndpoint', $menu_service)) {
+                                $setVideoId = $menu_service['playlistEditEndpoint']['actions'][0]['setVideoId'];
+                                $videoId = $menu_service['playlistEditEndpoint']['actions'][0]['removedVideoId'];
+                            }
+                        }
+
+                        if (array_key_exists('toggleMenuServiceItemRenderer', $item)) {
+                            $feedback_tokens = Utils::parseSongMenuTokens($item);
+                        }
+                    }
+                }
+
+                // if item is not playable, the videoId was retrieved above
+                if (array_key_exists('playNavigationEndpoint', data_get($data, Paths::PLAY_BUTTON))) {
+                    $videoId = data_get($data, Paths::PLAY_BUTTON)['playNavigationEndpoint']['watchEndpoint']['videoId'];
+
+                    if (array_key_exists('menu', $data)) {
+                        $like = data_get($data, Paths::MENU_LIKE_STATUS);
+                    }
+                }
+                $title = Utils::getItemText($data, 0);
+                if ($title == 'Song deleted') {
+                    continue;
+                }
+
+                $artists = Utils::parseSongArtists($data, 1);
+                $album = Utils::parseSongAlbum($data, 2);
+
+                $duration = null;
+                if (array_key_exists('fixedColumns', $data)) {
+                    if (array_key_exists('simpleText', Utils::getFixedColumnItem($data, 0)['text'])) {
+                        $duration = Utils::getFixedColumnItem($data, 0)['text']['simpleText'];
+                    } else {
+                        $duration = Utils::getFixedColumnItem($data, 0)['text']['runs'][0]['text'];
+                    }
+                }
+
+                $thumbnails = null;
+                if (array_key_exists('thumbnails', $data)) {
+                    $thumbnails = data_get($data, Paths::THUMBNAILS);
+                }
+
+                $isAvailable = true;
+                if (array_key_exists('musicItemRendererDisplayPolicy', $data)) {
+                    $isAvailable = $data['musicItemRendererDisplayPolicy'] != 'MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT';
+                }
+
+                $song = [
+                    'videoId' => $videoId,
+                    'title' => $title,
+                    'artists' => $artists,
+                    'album' => $album,
+                    'likeStatus' => $like,
+                    'thumbnails' => $thumbnails,
+                    'isAvailable' => $isAvailable,
+                ];
+
+                if ($duration) {
+                    $song['duration'] = $duration;
+                }
+                if ($setVideoId) {
+                    $song['setVideoId'] = $setVideoId;
+                }
+                if ($feedback_tokens) {
+                    $song['feedbackTokens'] = $feedback_tokens;
+                }
+
+                // if ($menu_entries)
+                //     $for menu_entry in $menu_entries:;
+                //         song[menu_entry[-1]] = nav(data, MENU_ITEMS + menu_entry)
+
+                $songs[] = $song;
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        }
+
+        return $songs;
     }
 }
