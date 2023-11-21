@@ -1,8 +1,8 @@
 {
-    "name": "mgkprod/ytmusicapi",
+    "name": "davadams97/ytmusicapi",
     "description": "Unofficial API for YouTube Music",
     "keywords": ["php", "laravel", "youtube", "youtube-api", "youtube-music", "youtube-music-api", "mgkprod", "ytmusicapi"],
-    "homepage": "https://github.com/mgkprod/ytmusicapi",
+    "homepage": "https://github.com/davadams97/ytmusicapi",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -11,12 +11,15 @@
             "email": "sr@mgk.dev",
             "homepage": "https://mgk.dev",
             "role": "Developer"
+        },
+        {
+            "name": "David Alexander Adams",
+            "email": "david.adams97@gmail.com",
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "illuminate/support": "^8.0",
-        "guzzlehttp/guzzle": "^6.5.5|^7.0.1"
+        "php": "^7.4|^8.0"
     },
     "require-dev": {
         "orchestra/testbench": "^6.0",
